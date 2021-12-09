@@ -2,27 +2,27 @@ import cv2
 import mediapipe as mp
 import time
 
+###########################  Anurag Yadav  ###########
 
 
 class handDetector():
-    def __init__(self,mode = False, maxHands=2, detectionCon = 0.5, trackCon= 0.5):
+    def __init__(self, mode=False, maxHands=2, detectionCon=0.5, trackCon=0.5):
         self.mode = mode
         self.maxHands = maxHands
         self.detectionCon = detectionCon
         self.trackCon = trackCon
 
         self.mpHands = mp.solutions.hands
-        self.hands = self.mpHands.Hands(self.mode,self.maxHands,self.detectionCon,self.trackCon)
+        self.hands = self.mpHands.Hands(self.mode, self.maxHands, self.detectionCon, self.trackCon)
 
         self.mpDraw = mp.solutions.drawing_utils
 
         self.tipIds = [4, 8, 12, 16, 20]
 
-
-    def findHands(self,img,draw = True):
-        imgRGB = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+    def findHands(self, img, draw=True):
+        imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.results = self.hands.process(imgRGB)
-        #print(results.multi_hand_landmarks)
+        # print(results.multi_hand_landmarks)
 
         if self.results.multi_hand_landmarks:
             for handLms in self.results.multi_hand_landmarks:
@@ -31,7 +31,7 @@ class handDetector():
 
         return img
 
-    def findPosition(self,img,handNo=0,draw=True):
+    def findPosition(self, img, handNo=0, draw=True):
         self.lmList = []
 
         if self.results.multi_hand_landmarks:
@@ -42,24 +42,24 @@ class handDetector():
                 h, w, c = img.shape
                 cx, cy = int(lm.x * w), int(lm.y * h)
                 # print(id, cx, cy)
-                self.lmList.append([id,cx,cy])
+                self.lmList.append([id, cx, cy])
                 # if id == 4:
                 if draw:
-                    cv2.circle(img, (cx, cy), 5, (255, 0, 255), cv2.FILLED)        # <-- Change here BGR
+                    cv2.circle(img, (cx, cy), 5, (255, 0, 255), cv2.FILLED)  # <-- Change here BGR
 
         return self.lmList
 
     def fingersUp(self):
         fingers = []
 
-        #Thumbs
+        # Thumbs
         if self.lmList[self.tipIds[0]][1] < self.lmList[self.tipIds[0] - 1][1]:
             fingers.append(1)
         else:
             fingers.append(0)
 
         # 4 Fingers
-        for id in range(1,5):
+        for id in range(1, 5):
             if self.lmList[self.tipIds[id]][2] < self.lmList[self.tipIds[id] - 2][2]:
                 fingers.append(1)
             else:
@@ -77,10 +77,10 @@ def main():
 
     while True:
         success, img = cap.read()
-        img = detector.findHands(img)           # <-- draw = False for removing drawing
-        lmList = detector.findPosition(img)     # <-- draw = False for removing drawing
+        img = detector.findHands(img)  # <-- draw = False for removing drawing
+        lmList = detector.findPosition(img)  # <-- draw = False for removing drawing
 
-        if len(lmList)!=0:
+        if len(lmList) != 0:
             print(lmList[4])
 
         cTime = time.time()
@@ -91,8 +91,6 @@ def main():
 
         cv2.imshow("Image", img)
         cv2.waitKey(1)
-
-
 
 
 if __name__ == "__main__":
